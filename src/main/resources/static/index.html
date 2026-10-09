@@ -1,0 +1,186 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f6f7f4">
+  <title>Attendance | Campus Office</title>
+  <link rel="stylesheet" href="/styles.css">
+  <script src="/app.js" defer></script>
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar" aria-label="Main navigation">
+      <a class="brand" href="/" aria-label="Campus Office home">
+        <span class="brand-mark" aria-hidden="true">C</span>
+        <span>campus<span class="brand-light">office</span></span>
+      </a>
+      <div class="nav-caption">WORKSPACE</div>
+      <a class="nav-item active" href="/" aria-current="page">
+        <span class="nav-icon" aria-hidden="true">▦</span> Attendance
+      </a>
+      <div class="sidebar-bottom">
+        <span class="online-dot" aria-hidden="true"></span>
+        <span>Attendance records</span>
+        <span class="sidebar-version">LIVE</span>
+      </div>
+    </aside>
+
+    <main class="main-content">
+      <header class="topbar">
+        <div class="breadcrumb">Workspace <span>/</span> Attendance</div>
+        <time class="today-label" id="today-label"></time>
+      </header>
+
+      <section class="page-heading">
+        <div>
+          <p class="eyebrow">PEOPLE OPERATIONS</p>
+          <h1>Attendance</h1>
+          <p class="page-subtitle">A clear view of who’s here and how the day is going.</p>
+        </div>
+        <button class="button button-primary" id="add-record" type="button">
+          <span aria-hidden="true">+</span> Add record
+        </button>
+      </section>
+
+      <section class="summary-grid" aria-label="Today's attendance summary">
+        <article class="summary-card summary-total">
+          <div class="summary-top"><span>On the roster</span><span class="summary-symbol" aria-hidden="true">↗</span></div>
+          <strong id="stat-total">—</strong>
+          <span class="summary-note">records today</span>
+        </article>
+        <article class="summary-card summary-present">
+          <div class="summary-top"><span>Present</span><span class="summary-symbol" aria-hidden="true">●</span></div>
+          <strong id="stat-present">—</strong>
+          <span class="summary-note">checked in</span>
+        </article>
+        <article class="summary-card summary-late">
+          <div class="summary-top"><span>Late arrivals</span><span class="summary-symbol" aria-hidden="true">◷</span></div>
+          <strong id="stat-late">—</strong>
+          <span class="summary-note">marked late</span>
+        </article>
+        <article class="summary-card summary-away">
+          <div class="summary-top"><span>Away</span><span class="summary-symbol" aria-hidden="true">—</span></div>
+          <strong id="stat-away">—</strong>
+          <span class="summary-note">absent or on leave</span>
+        </article>
+      </section>
+
+      <section class="records-section" aria-labelledby="records-title">
+        <div class="records-heading">
+          <div>
+            <h2 id="records-title">Attendance records</h2>
+            <p id="record-count">Loading records…</p>
+          </div>
+          <button class="button button-quiet" id="refresh-records" type="button" aria-label="Refresh records" title="Refresh records">
+            <span aria-hidden="true">↻</span><span class="refresh-label">Refresh</span>
+          </button>
+        </div>
+
+        <div class="toolbar">
+          <label class="search-field">
+            <span class="search-icon" aria-hidden="true">⌕</span>
+            <span class="visually-hidden">Search people or departments</span>
+            <input id="search-input" type="search" placeholder="Search people or departments…" autocomplete="off">
+          </label>
+          <label class="filter-field">
+            <span class="visually-hidden">Filter by status</span>
+            <select id="status-filter">
+              <option value="">All statuses</option>
+              <option>Present</option>
+              <option>Late</option>
+              <option>Absent</option>
+              <option>Leave</option>
+            </select>
+          </label>
+          <label class="filter-field date-filter">
+            <span class="visually-hidden">Filter by date</span>
+            <input id="date-filter" type="date" aria-label="Filter by date">
+          </label>
+        </div>
+
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th scope="col">EMPLOYEE</th>
+                <th scope="col">DEPARTMENT</th>
+                <th scope="col">DATE</th>
+                <th scope="col">CHECK IN</th>
+                <th scope="col">CHECK OUT</th>
+                <th scope="col">STATUS</th>
+                <th scope="col"><span class="visually-hidden">Actions</span></th>
+              </tr>
+            </thead>
+            <tbody id="records-body"></tbody>
+          </table>
+          <div class="empty-state" id="empty-state" hidden>
+            <span class="empty-mark" aria-hidden="true">○</span>
+            <strong id="empty-title">No attendance records yet</strong>
+            <p id="empty-description">Add a record to start tracking today’s attendance.</p>
+            <button class="button button-secondary" id="empty-add" type="button">Add first record</button>
+          </div>
+        </div>
+        <p class="error-message" id="error-message" role="alert" hidden></p>
+      </section>
+      <footer class="page-footer">Campus Office <span>·</span> Attendance management</footer>
+    </main>
+  </div>
+
+  <dialog class="record-dialog" id="record-dialog" aria-labelledby="dialog-title">
+    <form id="record-form">
+      <div class="dialog-heading">
+        <div>
+          <p class="eyebrow">ATTENDANCE ENTRY</p>
+          <h2 id="dialog-title">Add record</h2>
+        </div>
+        <button class="icon-button" id="close-dialog" type="button" aria-label="Close dialog">×</button>
+      </div>
+      <input id="record-id" type="hidden">
+      <div class="form-grid">
+        <label class="form-field form-wide">Employee name
+          <input id="employee-name" name="employeeName" type="text" maxlength="120" placeholder="e.g. Arun Kumar" required>
+        </label>
+        <label class="form-field">Department
+          <input id="department" name="department" type="text" maxlength="120" placeholder="e.g. IT" required>
+        </label>
+        <label class="form-field">Status
+          <select id="record-status" name="status" required>
+            <option>Present</option>
+            <option>Late</option>
+            <option>Absent</option>
+            <option>Leave</option>
+          </select>
+        </label>
+        <label class="form-field">Date
+          <input id="attendance-date" name="attendanceDate" type="date" required>
+        </label>
+        <span class="form-spacer" aria-hidden="true"></span>
+        <label class="form-field">Check in
+          <input id="check-in" name="checkInTime" type="time">
+        </label>
+        <label class="form-field">Check out
+          <input id="check-out" name="checkOutTime" type="time">
+        </label>
+      </div>
+      <p class="form-error" id="form-error" role="alert" hidden></p>
+      <div class="dialog-actions">
+        <button class="button button-quiet" id="cancel-dialog" type="button">Cancel</button>
+        <button class="button button-primary" id="save-record" type="submit">Save record</button>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog class="confirm-dialog" id="delete-dialog" aria-labelledby="delete-title">
+    <div class="confirm-content">
+      <p class="eyebrow">REMOVE ENTRY</p>
+      <h2 id="delete-title">Delete this record?</h2>
+      <p>This attendance entry will be permanently removed.</p>
+      <div class="dialog-actions">
+        <button class="button button-quiet" id="cancel-delete" type="button">Keep record</button>
+        <button class="button button-danger" id="confirm-delete" type="button">Delete record</button>
+      </div>
+    </div>
+  </dialog>
+</body>
+</html>
